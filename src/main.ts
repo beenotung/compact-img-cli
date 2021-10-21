@@ -3,14 +3,16 @@ import sharp from 'sharp'
 import * as fs from 'fs'
 import { filesForEach } from '@beenotung/tslib'
 
+export type Mode = 'daemon' | 'once'
+
 export async function main(options: {
   mode: 'daemon' | 'once'
-  backup?: string
+  backup_dir: 'none' | string
   dir: string
   max_size: number
 }) {
-  if (options.backup && !fs.existsSync(options.backup)) {
-    fs.mkdirSync(options.dir, { recursive: true })
+  if (options.backup_dir !== 'none' && !fs.existsSync(options.backup_dir)) {
+    fs.mkdirSync(options.backup_dir, { recursive: true })
   }
   await scanRecursively({
     entryPath: options.dir,
