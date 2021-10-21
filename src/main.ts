@@ -28,15 +28,18 @@ export async function main(options: {
         const metadata = await image.metadata()
         let { width, height } = metadata
         console.log({ size, width, height })
-        const newWidth = Math.round(width * 0.5)
-        const newHeight = Math.round(height * 0.5)
+        const ratio = Math.sqrt(size / options.max_size)
+        const newWidth = Math.round(width! * ratio)
+        const newHeight = Math.round(height! * ratio)
         if (newWidth === width && newHeight === height) return
         console.log('resize', { width, newWidth })
         const tmpfile = filename + '.tmp'
         width = newWidth
         height = newHeight
         // TODO do rotation
-        const outfile = await image.resize({ height, width }).toFile(tmpfile)
+        const outfile = await image
+          .resize({ height: newHeight, width: newWidth })
+          .toFile(tmpfile)
         console.log('out', outfile)
         console.log('rename', tmpfile, filename)
         fs.renameSync(tmpfile, filename)
