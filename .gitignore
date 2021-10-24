@@ -3,3 +3,4 @@ res
 .idea
 pnpm-lock.yaml
 dist/
+*.tgz

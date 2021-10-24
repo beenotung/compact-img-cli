@@ -15,7 +15,8 @@
     "format:json": "format-json-cli",
     "format:eslint": "eslint --fix --ext .ts .",
     "test": "tsc --noEmit -p .",
-    "build": "rimraf dist && tsc -p ."
+    "build": "rimraf dist && tsc -p .",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@beenotung/tslib": "^17.8.0",
