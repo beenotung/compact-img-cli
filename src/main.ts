@@ -74,6 +74,9 @@ export async function main(options: {
         console.log(msg)
         // TODO do rotation
         const output = await image
+          .jpeg({ progressive: true, quality: 80, force: false })
+          .webp({ quality: 80, force: false })
+          .png({ progressive: true, compressionLevel: 8, force: false })
           .resize({ height: newHeight, width: newWidth, fit: 'inside' })
           .toBuffer()
         const newSize = output.length
