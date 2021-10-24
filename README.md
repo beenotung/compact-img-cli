@@ -7,8 +7,13 @@ compress images recursively in the filesystem
 **Usage after install** (recommended):
 
 ```bash
+## install
 npm i -g compact-img-cli
+
+# usage
 compact-img-cli [options]
+# or
+compact-img [options]
 ```
 
 **Usage without install**:
