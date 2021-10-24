@@ -2,6 +2,30 @@
 
 compress images recursively in the filesystem
 
+## Usage
+
+**Usage after install** (recommended):
+
+```bash
+npm i -g compact-img-cli
+compact-img-cli [options]
+```
+
+**Usage without install**:
+
+```bash
+npx compact-img-cli [options]
+```
+
+## Options
+
+| Short Form | Full Form    | Default                   | Description                                               |
+| ---------- | ------------ | ------------------------- | --------------------------------------------------------- |
+| -d         | --dir        | current working directory | the directory to be scanned recursively                   |
+| -s         | --max-size   | 300KB                     | compact the image if excesses this size                   |
+| -m         | --mode       | `once`                    | `once` or `daemon`                                        |
+| -b         | --backup-dir | none                      | backup the original image , otherwise will be overwritten |
+
 ## License
 
 This project is licensed with [BSD-2-Clause](./LICENSE)
