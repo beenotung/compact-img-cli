@@ -29,6 +29,7 @@ export async function main(options: {
   interval: number
 }) {
   const { backup_dir, max_size, mode, interval } = options
+  const aggressive_max_size = max_size * 0.9
   if (backup_dir !== 'none') {
     mkdirP(backup_dir)
   }
@@ -71,7 +72,7 @@ export async function main(options: {
         for (; newWidth > 1 && newHeight > 1; ) {
           const newArea = newWidth * newHeight
           const newSize = newArea * sizePerArea
-          if (newSize <= max_size) break
+          if (newSize <= aggressive_max_size) break
           const newAspectRatio = newWidth / newHeight
           if (newAspectRatio > aspectRatio) {
             newWidth--
