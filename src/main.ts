@@ -40,6 +40,9 @@ export async function main(options: {
         unlinkSync(filename)
         return
       }
+      if (filename.startsWith(backup_dir)) {
+        return
+      }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const ext = filename.split('.').pop()!
       if (!isImageExt(ext)) return
