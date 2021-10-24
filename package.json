@@ -1,6 +1,6 @@
 {
   "name": "compact-img-cli",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "compress images recursively in the filesystem",
   "keywords": [
     "image compress",
