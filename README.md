@@ -4,6 +4,12 @@ compress images recursively in the filesystem
 
 ## Usage
 
+**Usage without install**:
+
+```bash
+npx compact-img-cli [options]
+```
+
 **Usage after install** (recommended):
 
 ```bash
@@ -16,20 +22,21 @@ compact-img-cli [options]
 compact-img [options]
 ```
 
-**Usage without install**:
-
-```bash
-npx compact-img-cli [options]
-```
-
 ## Options
 
-| Short Form | Full Form    | Default                   | Description                                                           |
-| ---------- | ------------ | ------------------------- | --------------------------------------------------------------------- |
-| -d         | --dir        | current working directory | the directory to be scanned recursively                               |
-| -s         | --max-size   | 300KB                     | compact the image if it excesses this size                            |
-| -m         | --mode       | `once`                    | `once` or `daemon`                                                    |
-| -b         | --backup-dir | none                      | Directory to backup the original image, otherwise will be overwritten |
+```
+-h | --help         Show this help message
+-d | --dir          Directory to be scanned   (Default is current working directory)
+-s | --max-size     Compact the images if it excesses this size  (Default 300KB)
+-m | --mode         'once' or 'daemon'  (Default is 'once')
+-b | --backup-dir   Directory to backup original image, otherwise will be overwritten   (Default is none)
+-i | --interval     Interval between each scan in 'daemon' mode   (Default in 1 day)
+                    Format: 1d -> 1 day
+                            1h -> 1 hour
+                            1m -> 1 minute
+                            1s -> 1 second
+                            1  -> 1 ms
+```
 
 ## License
 

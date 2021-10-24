@@ -1,5 +1,5 @@
 import { scanRecursively } from '@beenotung/tslib/fs'
-import { format_byte } from '@beenotung/tslib/format'
+import { format_byte, format_time_duration } from '@beenotung/tslib/format'
 import sharp from 'sharp'
 import {
   writeFileSync,
@@ -26,8 +26,9 @@ export async function main(options: {
   backup_dir: 'none' | string
   dir: string
   max_size: number
+  interval: number
 }) {
-  const { backup_dir, max_size } = options
+  const { backup_dir, max_size, mode, interval } = options
   if (backup_dir !== 'none') {
     mkdirP(backup_dir)
   }
@@ -110,7 +111,15 @@ export async function main(options: {
       }
     },
   })
-  console.info('done')
+  if (mode === 'once') {
+    console.info('done')
+    return
+  }
+  console.info(
+    'done once, will scan again after',
+    format_time_duration(interval),
+  )
+  setTimeout(() => main(options), interval)
 }
 
 function isImageExt(ext: string) {
