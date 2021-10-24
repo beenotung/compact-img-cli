@@ -1,16 +1,23 @@
 import { scanRecursively } from '@beenotung/tslib/fs'
 import { format_byte } from '@beenotung/tslib/format'
 import sharp from 'sharp'
-import * as fs from 'fs'
-import * as path from 'path'
+import {
+  writeFileSync,
+  renameSync,
+  statSync,
+  unlinkSync,
+  mkdirSync,
+  existsSync,
+} from 'fs'
+import { dirname, join } from 'path'
 
 export type Mode = 'daemon' | 'once'
 
 const tmp_suffix = '.tmp'
 
 function mkdirP(file: string) {
-  if (!fs.existsSync(file)) {
-    fs.mkdirSync(file, { recursive: true })
+  if (!existsSync(file)) {
+    mkdirSync(file, { recursive: true })
   }
 }
 
@@ -29,27 +36,28 @@ export async function main(options: {
     dereferenceSymbolicLinks: false,
     onFile: async (filename, basename) => {
       if (basename.endsWith(tmp_suffix)) {
-        fs.unlinkSync(filename)
+        unlinkSync(filename)
         return
       }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const ext = filename.split('.').pop()!
       if (!isImageExt(ext)) return
-      console.log('image:', filename)
-      let size = fs.statSync(filename).size
+      console.info('image:', filename)
+      let size = statSync(filename).size
       if (size <= max_size) return
       let image = sharp(filename, { failOnError: false })
 
       // original ratio
       const { width, height } = await image.metadata()
       if (!width || !height) {
-        console.log('no size:', filename)
+        console.info('no size:', filename)
         return
       }
       const aspectRatio = width / height
       for (;;) {
         const { width, height } = await image.metadata()
         if (!width || !height) {
-          console.log('no size:', filename)
+          console.info('no size:', filename)
           return
         }
         const area = width * height
@@ -71,7 +79,7 @@ export async function main(options: {
           }
         }
         const msg = `rescale: ${width}x${height} -> ${newWidth}x${newHeight}`
-        console.log(msg)
+        console.info(msg)
         // TODO do rotation
         const output = await image
           .jpeg({ progressive: true, quality: 80, force: false })
@@ -82,7 +90,7 @@ export async function main(options: {
         const newSize = output.length
         const newSizeText = format_byte(newSize)
         const sizeText = format_byte(size)
-        console.log(
+        console.info(
           ' '.repeat(msg.length),
           `  resize: ${sizeText} -> ${newSizeText}`,
         )
@@ -92,17 +100,17 @@ export async function main(options: {
           continue
         }
         if (backup_dir !== 'none') {
-          const backupFile = path.join(backup_dir, filename)
-          mkdirP(path.dirname(backupFile))
-          fs.renameSync(filename, backupFile)
+          const backupFile = join(backup_dir, filename)
+          mkdirP(dirname(backupFile))
+          renameSync(filename, backupFile)
         }
-        console.log(`update: ${filename}`)
-        fs.writeFileSync(filename, output)
+        console.info(`update: ${filename}`)
+        writeFileSync(filename, output)
         return
       }
     },
   })
-  console.log('done')
+  console.info('done')
 }
 
 function isImageExt(ext: string) {
