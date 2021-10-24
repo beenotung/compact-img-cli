@@ -4,7 +4,7 @@ import { main, Mode } from './main'
 let dir = '.'
 let max_size = 300 * KB
 let mode: Mode = 'once'
-let backup_dir = ''
+let backup_dir = 'none'
 
 for (let i = 0; i < process.argv.length; i++) {
   switch (process.argv[i]) {
