@@ -24,12 +24,12 @@ npx compact-img-cli [options]
 
 ## Options
 
-| Short Form | Full Form    | Default                   | Description                                               |
-| ---------- | ------------ | ------------------------- | --------------------------------------------------------- |
-| -d         | --dir        | current working directory | the directory to be scanned recursively                   |
-| -s         | --max-size   | 300KB                     | compact the image if excesses this size                   |
-| -m         | --mode       | `once`                    | `once` or `daemon`                                        |
-| -b         | --backup-dir | none                      | backup the original image , otherwise will be overwritten |
+| Short Form | Full Form    | Default                   | Description                                                           |
+| ---------- | ------------ | ------------------------- | --------------------------------------------------------------------- |
+| -d         | --dir        | current working directory | the directory to be scanned recursively                               |
+| -s         | --max-size   | 300KB                     | compact the image if it excesses this size                            |
+| -m         | --mode       | `once`                    | `once` or `daemon`                                                    |
+| -b         | --backup-dir | none                      | Directory to backup the original image, otherwise will be overwritten |
 
 ## License
 
