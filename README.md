@@ -2,6 +2,8 @@
 
 compress images recursively in the filesystem
 
+[![npm Package Version](https://img.shields.io/npm/v/compact-img-cli.svg?maxAge=2592000)](https://www.npmjs.com/package/compact-img-cli)
+
 ## License
 
 This project is licensed with [BSD-2-Clause](./LICENSE)
