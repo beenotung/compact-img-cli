@@ -1,0 +1,15 @@
+node_modules/
+pnpm-lock.yaml
+*.tgz
+
+tsconfig.json
+tsconfig.tsbuildinfo
+
+.editorconfig
+.eslintignore
+.eslintrc
+.prettierignore
+.prettierrc
+
+res/
+test/

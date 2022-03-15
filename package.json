@@ -1,6 +1,6 @@
 {
   "name": "compact-img-cli",
-  "version": "0.0.0",
+  "version": "1.1.2",
   "description": "compress images recursively in the filesystem",
   "keywords": [
     "image compress",
@@ -9,27 +9,33 @@
   ],
   "author": "Beeno Tung <aabbcc1241@yahoo.com.hk> (https://beeno-tung.surge.sh)",
   "license": "BSD-2-Clause",
+  "bin": {
+    "compact-img": "index.js",
+    "compact-img-cli": "index.js"
+  },
   "scripts": {
     "format": "run-s format:*",
     "format:prettier": "prettier --write .",
     "format:json": "format-json-cli",
     "format:eslint": "eslint --fix --ext .ts .",
-    "test": "tsc --noEmit",
-    "build": "tsc"
+    "test": "tsc --noEmit -p .",
+    "build": "rimraf dist && tsc -p .",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@beenotung/tslib": "^17.8.0",
-    "sharp": "^0.26.0"
+    "sharp": "^0.29.1"
   },
   "devDependencies": {
     "@types/node": "^16.10.5",
-    "@types/sharp": "^0.26.0",
+    "@types/sharp": "^0.29.2",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.0",
     "format-json-cli": "^1.0.1",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.4.1",
+    "rimraf": "^3.0.2",
     "ts-node": "^10.3.0",
     "ts-node-dev": "^1.1.8",
     "typescript": "^4.4.4"

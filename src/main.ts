@@ -1,52 +1,129 @@
 import { scanRecursively } from '@beenotung/tslib/fs'
+import { format_byte, format_time_duration } from '@beenotung/tslib/format'
 import sharp from 'sharp'
-import * as fs from 'fs'
-import { filesForEach } from '@beenotung/tslib'
+import {
+  writeFileSync,
+  renameSync,
+  statSync,
+  unlinkSync,
+  mkdirSync,
+  existsSync,
+} from 'fs'
+import { dirname, join } from 'path'
 
 export type Mode = 'daemon' | 'once'
+
+const tmp_suffix = '.tmp'
+
+function mkdirP(file: string) {
+  if (!existsSync(file)) {
+    mkdirSync(file, { recursive: true })
+  }
+}
 
 export async function main(options: {
   mode: 'daemon' | 'once'
   backup_dir: 'none' | string
   dir: string
   max_size: number
+  interval: number
 }) {
-  if (options.backup_dir !== 'none' && !fs.existsSync(options.backup_dir)) {
-    fs.mkdirSync(options.backup_dir, { recursive: true })
+  const { backup_dir, max_size, mode, interval } = options
+  const aggressive_max_size = max_size * 0.9
+  if (backup_dir !== 'none') {
+    mkdirP(backup_dir)
   }
   await scanRecursively({
     entryPath: options.dir,
     dereferenceSymbolicLinks: false,
     onFile: async (filename, basename) => {
+      if (basename.endsWith(tmp_suffix)) {
+        unlinkSync(filename)
+        return
+      }
+      if (filename.startsWith(backup_dir)) {
+        return
+      }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const ext = filename.split('.').pop()!
       if (!isImageExt(ext)) return
-      console.log('image', filename)
+      console.info('image:', filename)
+      let size = statSync(filename).size
+      if (size <= max_size) return
+      let image = sharp(filename, { failOnError: false })
+
+      // original ratio
+      const { width, height } = await image.metadata()
+      if (!width || !height) {
+        console.info('no size:', filename)
+        return
+      }
+      const aspectRatio = width / height
       for (;;) {
-        const size = fs.statSync(filename).size
-        if (size <= options.max_size) return
-        const image = sharp(filename)
-        const metadata = await image.metadata()
-        let { width, height } = metadata
-        console.log({ size, width, height })
-        const ratio = Math.sqrt(size / options.max_size)
-        const newWidth = Math.round(width! * ratio)
-        const newHeight = Math.round(height! * ratio)
-        if (newWidth === width && newHeight === height) return
-        console.log('resize', { width, newWidth })
-        const tmpfile = filename + '.tmp'
-        width = newWidth
-        height = newHeight
+        const { width, height } = await image.metadata()
+        if (!width || !height) {
+          console.info('no size:', filename)
+          return
+        }
+        const area = width * height
+        const sizePerArea = size / area
+        let newWidth = width
+        let newHeight = height
+        for (; newWidth > 1 && newHeight > 1; ) {
+          const newArea = newWidth * newHeight
+          const newSize = newArea * sizePerArea
+          if (newSize <= aggressive_max_size) break
+          const newAspectRatio = newWidth / newHeight
+          if (newAspectRatio > aspectRatio) {
+            newWidth--
+          } else if (newAspectRatio < aspectRatio) {
+            newHeight--
+          } else {
+            newWidth--
+            newHeight--
+          }
+        }
+        const msg = `rescale: ${width}x${height} -> ${newWidth}x${newHeight}`
+        console.info(msg)
         // TODO do rotation
-        const outfile = await image
-          .resize({ height: newHeight, width: newWidth })
-          .toFile(tmpfile)
-        console.log('out', outfile)
-        console.log('rename', tmpfile, filename)
-        fs.renameSync(tmpfile, filename)
+        const output = await image
+          .jpeg({ progressive: true, quality: 80, force: false })
+          .webp({ quality: 80, force: false })
+          .png({ progressive: true, compressionLevel: 8, force: false })
+          .resize({ height: newHeight, width: newWidth, fit: 'inside' })
+          .toBuffer()
+        const newSize = output.length
+        const newSizeText = format_byte(newSize)
+        const sizeText = format_byte(size)
+        console.info(
+          ' '.repeat(msg.length),
+          `  resize: ${sizeText} -> ${newSizeText}`,
+        )
+        if (newSize > max_size) {
+          image = sharp(output)
+          size = newSize
+          continue
+        }
+        if (backup_dir !== 'none') {
+          const backupFile = join(backup_dir, filename)
+          mkdirP(dirname(backupFile))
+          renameSync(filename, backupFile)
+        }
+        console.info(`update: ${filename}`)
+        writeFileSync(filename, output)
+        return
       }
     },
   })
-  console.log('done')
+  if (mode === 'once') {
+    console.info('done')
+    return
+  }
+  console.info(
+    'done once, will scan again after',
+    format_time_duration(interval),
+  )
+  setTimeout(() => main(options), interval)
 }
 
 function isImageExt(ext: string) {
